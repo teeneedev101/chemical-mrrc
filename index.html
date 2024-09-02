@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="AppModule">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chemical : MRRC</title>
+    <link rel="icon" href="data:,"><!-- fix favicon error-->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.13.2/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.2/js/dataTables.bootstrap4.min.js"></script> 
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.2/css/dataTables.bootstrap4.min.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+    <script src="https://www.amcharts.com/lib/3/serial.js"></script>
+    <script src="https://www.amcharts.com/lib/3/xy.js"></script>
+    <script src="https://www.amcharts.com/lib/3/themes/light.js"></script>
+    <!-- Angular Material requires Angular.js Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.6/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-filter/0.5.16/angular-filter.js" > </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.6/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.6/angular-aria.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.6/angular-messages.min.js"></script>
+    <script>
+      var AppModule = angular.module("AppModule", ['angular.filter']); // ['angular.filter']
+      AppModule.controller("ctrl_fitforwork", function ($scope, $http) {
+
+        $http
+          .get(
+            "https://script.google.com/macros/s/AKfycbwAGtrvTz9p0xr23o5X1gT4oJonHPsjFyXgLr_r7wQpIgwzsFllCSxWuGExDZONSyv2/exec"
+          )
+          .then(
+            function successCallback(res) {
+
+              // console.log("data chemicals =");
+              console.log(res.data.Chemical_list);
+              $scope.chemicals=res.data.Chemical_list;
+              // console.log("LastUpdate =",$scope.chemicals[$scope.chemicals.length-1].LastUpdate);
+              // $scope.LastUpdate=$scope.chemicals[$scope.chemicals.length-1].LastUpdate;
+              // $scope.NameLastUpdate=$scope.chemicals[$scope.chemicals.length-1].Name;
+
+              $scope.datas=GroupSumData($scope.chemicals);
+            },
+            function errorCallback(res) {
+              // alert("net ตายนะมึง")
+              console.log(" Unable to perform get request");
+            }
+          );    
+      });
+
+     
+    </script>
+    <script>
+        function GroupSumData(obj){
+      
+            var  mockresult=[];
+            const mock=obj;
+
+              mock.reduce(function(res, value) {
+        if (!res[value.ID]) {
+            res[value.ID] = { Id: value.ID, TimeTotal: 0 ,Name:value.Name};    
+            mockresult.push(res[value.ID])
+        }
+
+        res[value.ID].TimeTotal += value.TimeTotal;
+
+        return res;
+        }, {});
+        return mockresult.sort((a, b) => parseFloat(b.TimeTotal) - parseFloat(a.TimeTotal))
+        }
+    </script>
+
+  </head>
+  <body class="container" ng-controller="ctrl_fitforwork">
+    <h2 class='mb-3 mt-5 bg-primary p-2 text-white fw-bold'>
+      <i class="fa-solid fa-flask"></i>
+      Chemical Control : MRRC
+    </h2>
+        <table  class="table table-striped table-bordered" style="width:100%">
+           <thead>
+              <tr class="table-info">
+                <!-- <th>ลำดับ</th> -->
+                <th>Material_code</th>
+                <th>Description</th>
+                <th>Picture</th>
+                <th>Keeping_Area</th>
+                <th>Quantity</th>
+                <th>LifeTime</th>
+                <th>DateofUse</th>
+                <th>ExpiredDate</th>
+                <th>TagColor</th>
+                <th>MSDS</th>
+              </tr>
+            </thead>
+            <tbody> 
+             
+              <p id="demo"></p>
+              <script>
+                const d = new Date()
+                document.getElementById("demo").innerHTML = d
+              </script>
+              
+              <tr style="background-color: rgb(212, 220, 220)">
+                <!-- <th scope="col"></th> -->
+                <th scope="col" class="text-start">
+                  <input
+                    ng-model="s.Material_code"
+                    placeholder="Mat.Code"
+                    class="form-control input-md"
+                  />
+                </th>
+                <th scope="col">
+                  <input
+                    ng-model="s.Description"
+                    placeholder="Description"
+                    class="form-control input-md"
+                  />
+                </th>
+
+                <th scope="col">
+                  <input
+                    ng-model="s.Picture"
+                    placeholder="Picture"
+                    class="form-control input-md"
+                  />
+                </th>
+                <th scope="col">
+                  <input
+                    ng-model="s.Keeping_Area"
+                    placeholder="Keeping_Area"
+                    class="form-control input-md"
+                  />
+                </th>
+                <th scope="col">
+                  <input
+                    ng-model="s.Quantity"
+                    placeholder="Quantity"
+                    class="form-control input-md"
+                  />
+                </th>
+                <th scope="col">
+                  <input
+                    ng-model="s.LifeTime"
+                    placeholder="LifeTime"
+                    class="form-control input-md"
+                  />
+                </th>
+                <th scope="col">
+                  <input
+                    ng-model="s.DateofUse"
+                    placeholder="DateofUse"
+                    class="form-control input-md"
+                  />
+                </th>
+                <th scope="col">
+                  <input
+                    ng-model="s.ExpiredDate"
+                    placeholder="ExpiredDate"
+                    class="form-control input-md"
+                  />
+                </th>
+                <th scope="col">
+                  <input
+                    ng-model="s.TagColor"
+                    placeholder="TagColor"
+                    class="form-control input-md"
+                  />
+                </th>
+                <th scope="col">
+                  <input
+                    ng-model="s.MSDS"
+                    placeholder="MSDS"
+                    class="form-control input-md"
+                  />
+                </th>
+              </tr>     
+              <tr ng-repeat="n in chemicals | filter:s">
+                <!-- <td> {{$index+1}} </td> -->
+                <td> {{n.Material_code}} </td>
+                <td> {{n.Description}} </td>
+                <td>
+                  <button class="btn btn-sm btn-warning"><a href="{{n.Picture}}" target="_blank">View</a> 
+                  </button>
+                </td>
+                <td> {{n.Keeping_Area}} </td>
+                <td> {{n.Quantity}} </td>
+                <td> {{n.LifeTime}} </td>
+                <td> {{n.DateofUse}} </td>
+                <td> {{n.ExpiredDate}} </td>
+                <td> {{n.TagColor}} </td>
+                <td> <button class="btn btn-sm btn-success"><a class="text-white" href="{{n.MSDS}}" target="_blank">View</a> 
+                </button> </td>
+              </tr>       
+            </tbody>
+          </table>      
+    </div>
+  </body>
+</html>
